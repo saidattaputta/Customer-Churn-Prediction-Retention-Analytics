@@ -21,3 +21,16 @@ data/processed/
 
 # Environment files
 .env
+
+# macOS
+.DS_Store
+
+# Docker / local artifacts
+artifacts/
+
+# Local MLflow outputs
+mlruns/
+
+# Secrets
+.env
+.streamlit/secrets.toml
