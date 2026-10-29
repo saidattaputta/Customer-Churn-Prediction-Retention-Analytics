@@ -1,0 +1,23 @@
+artifact_path: /Users/saidattaputta/Desktop/customer-churn-prediction-analytics/notebooks/mlruns/1/models/m-93f12675ed09438ea2c734bc4994cf2a/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.skops
+    predict_fn: predict
+    python_version: 3.12.12
+  sklearn:
+    code: null
+    pickled_model: model.skops
+    serialization_format: skops
+    sklearn_version: 1.9.1
+    skops_trusted_types: null
+mlflow_version: 3.17.2
+model_id: m-93f12675ed09438ea2c734bc4994cf2a
+model_size_bytes: 167597
+model_uuid: m-93f12675ed09438ea2c734bc4994cf2a
+prompts: null
+run_id: 2ab3d67050844442af2d53f7e8109e17
+utc_time_created: '2026-10-29 20:36:40.739441'
