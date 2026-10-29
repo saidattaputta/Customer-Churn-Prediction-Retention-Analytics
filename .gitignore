@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# MLflow
+mlruns/
+mlflow.db
+mlflow.db-shm
+mlflow.db-wal
+
+# Model artifacts
+models/*.pkl
+
+# Data
+data/raw/
+data/processed/
+
+# Environment files
+.env
