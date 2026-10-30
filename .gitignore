@@ -2,35 +2,35 @@
 __pycache__/
 *.py[cod]
 .venv/
+.pytest_cache/
 
 # Jupyter
 .ipynb_checkpoints/
 
-# MLflow
+# MLflow tracking data
 mlruns/
 mlflow.db
 mlflow.db-shm
 mlflow.db-wal
 
 # Model artifacts
-models/*.pkl
+# Keep the trained model required by the app
+# models/*.pkl
 
 # Data
-data/raw/
-data/processed/
+# Keep datasets required for reproducibility
+# data/raw/
+# data/processed/
 
-# Environment files
+# Environment files and secrets
 .env
+.streamlit/secrets.toml
 
 # macOS
 .DS_Store
 
-# Docker / local artifacts
+# Generated evaluation and explainability artifacts
 artifacts/
 
-# Local MLflow outputs
-mlruns/
-
-# Secrets
-.env
-.streamlit/secrets.toml
+# Temporary files
+*.log

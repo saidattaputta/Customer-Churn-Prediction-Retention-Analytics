@@ -111,8 +111,10 @@ rpds-py==2026.9.1
 scikit-learn==1.9.1
 scipy==1.18.1
 seaborn==0.13.2
+shap==0.54.1
 six==1.17.0
 skops==0.16.0
+slicer==0.0.8
 smmap==5.0.3
 SQLAlchemy==2.1.6
 sqlparse==0.6.0

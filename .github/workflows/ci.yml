@@ -27,4 +27,4 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run API tests
-        run: python -m pytest -v
+        run: PYTHONPATH=. python -m pytest -v

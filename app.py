@@ -2,10 +2,32 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import shap
+import matplotlib.pyplot as plt
+
 from pathlib import Path
 from src.batch_predict import predict_batch
+from src.model_loader import load_model
 
-# Required model input features
+
+# --------------------------------------------------
+# Paths
+# --------------------------------------------------
+
+ROOT_DIR = Path(__file__).resolve().parent
+
+DATA_PATH = (
+    ROOT_DIR
+    / "data"
+    / "processed"
+    / "telco_churn_clean.csv"
+)
+
+
+# --------------------------------------------------
+# Required Model Input Features
+# --------------------------------------------------
+
 REQUIRED_FEATURES = [
     "gender",
     "SeniorCitizen",
@@ -25,15 +47,13 @@ REQUIRED_FEATURES = [
     "PaperlessBilling",
     "PaymentMethod",
     "MonthlyCharges",
-    "TotalCharges"
+    "TotalCharges",
 ]
 
 
 # --------------------------------------------------
 # Load Model
 # --------------------------------------------------
-
-from src.model_loader import load_model
 
 model = load_model()
 
@@ -45,7 +65,7 @@ model = load_model()
 st.set_page_config(
     page_title="Customer Churn Prediction",
     page_icon="📊",
-    layout="wide"
+    layout="wide",
 )
 
 
@@ -65,9 +85,9 @@ st.write(
 # Business Threshold
 # --------------------------------------------------
 
-# Business-oriented threshold for retention outreach.
-# This is an illustrative operating point, not a
-# statistically or economically optimized threshold.
+# Illustrative business-oriented threshold.
+# This is not a statistically or economically
+# optimized operating point.
 
 threshold = 0.4
 
@@ -89,34 +109,34 @@ with col1:
 
     gender = st.selectbox(
         "Gender",
-        ["Male", "Female"]
+        ["Male", "Female"],
     )
 
     senior_citizen = st.selectbox(
         "Senior Citizen",
-        [0, 1]
+        [0, 1],
     )
 
     partner = st.selectbox(
         "Partner",
-        ["Yes", "No"]
+        ["Yes", "No"],
     )
 
     dependents = st.selectbox(
         "Dependents",
-        ["Yes", "No"]
+        ["Yes", "No"],
     )
 
     tenure = st.slider(
-        "Tenure (months)",
+        "Tenure (Months)",
         min_value=0,
         max_value=72,
-        value=12
+        value=12,
     )
 
     phone_service = st.selectbox(
         "Phone Service",
-        ["Yes", "No"]
+        ["Yes", "No"],
     )
 
 
@@ -128,32 +148,56 @@ with col2:
 
     multiple_lines = st.selectbox(
         "Multiple Lines",
-        ["Yes", "No", "No phone service"]
+        [
+            "Yes",
+            "No",
+            "No phone service",
+        ],
     )
 
     internet_service = st.selectbox(
         "Internet Service",
-        ["DSL", "Fiber optic", "No"]
+        [
+            "DSL",
+            "Fiber optic",
+            "No",
+        ],
     )
 
     online_security = st.selectbox(
         "Online Security",
-        ["Yes", "No", "No internet service"]
+        [
+            "Yes",
+            "No",
+            "No internet service",
+        ],
     )
 
     online_backup = st.selectbox(
         "Online Backup",
-        ["Yes", "No", "No internet service"]
+        [
+            "Yes",
+            "No",
+            "No internet service",
+        ],
     )
 
     device_protection = st.selectbox(
         "Device Protection",
-        ["Yes", "No", "No internet service"]
+        [
+            "Yes",
+            "No",
+            "No internet service",
+        ],
     )
 
     tech_support = st.selectbox(
         "Tech Support",
-        ["Yes", "No", "No internet service"]
+        [
+            "Yes",
+            "No",
+            "No internet service",
+        ],
     )
 
 
@@ -165,12 +209,20 @@ with col3:
 
     streaming_tv = st.selectbox(
         "Streaming TV",
-        ["Yes", "No", "No internet service"]
+        [
+            "Yes",
+            "No",
+            "No internet service",
+        ],
     )
 
     streaming_movies = st.selectbox(
         "Streaming Movies",
-        ["Yes", "No", "No internet service"]
+        [
+            "Yes",
+            "No",
+            "No internet service",
+        ],
     )
 
     contract = st.selectbox(
@@ -178,13 +230,13 @@ with col3:
         [
             "Month-to-month",
             "One year",
-            "Two year"
-        ]
+            "Two year",
+        ],
     )
 
     paperless_billing = st.selectbox(
         "Paperless Billing",
-        ["Yes", "No"]
+        ["Yes", "No"],
     )
 
     payment_method = st.selectbox(
@@ -193,77 +245,58 @@ with col3:
             "Electronic check",
             "Mailed check",
             "Bank transfer (automatic)",
-            "Credit card (automatic)"
-        ]
+            "Credit card (automatic)",
+        ],
     )
 
     monthly_charges = st.number_input(
         "Monthly Charges",
         min_value=0.0,
         value=70.0,
-        step=1.0
+        step=1.0,
     )
 
     total_charges = st.number_input(
         "Total Charges",
         min_value=0.0,
         value=840.0,
-        step=10.0
+        step=10.0,
     )
 
 
 # --------------------------------------------------
-# Prediction
+# Prediction Button
 # --------------------------------------------------
 
 if st.button(
     "Predict Churn",
-    type="primary"
+    type="primary",
 ):
 
-    # Construct input DataFrame.
-    # Feature names and ordering match model training.
+    # --------------------------------------------------
+    # Prepare Customer Data
+    # --------------------------------------------------
 
     customer = pd.DataFrame([{
-
         "gender": gender,
-
         "SeniorCitizen": senior_citizen,
-
         "Partner": partner,
-
         "Dependents": dependents,
-
         "tenure": tenure,
-
         "PhoneService": phone_service,
-
         "MultipleLines": multiple_lines,
-
         "InternetService": internet_service,
-
         "OnlineSecurity": online_security,
-
         "OnlineBackup": online_backup,
-
         "DeviceProtection": device_protection,
-
         "TechSupport": tech_support,
-
         "StreamingTV": streaming_tv,
-
         "StreamingMovies": streaming_movies,
-
         "Contract": contract,
-
         "PaperlessBilling": paperless_billing,
-
         "PaymentMethod": payment_method,
-
         "MonthlyCharges": monthly_charges,
-
-        "TotalCharges": total_charges
-
+        "TotalCharges": total_charges,
     }])
 
 
@@ -301,18 +334,20 @@ if st.button(
 
         st.metric(
             label="Churn Probability",
-            value=f"{churn_probability:.1%}"
+            value=f"{churn_probability:.1%}",
         )
 
     with result_col2:
 
         st.metric(
             label="Prediction Threshold",
-            value=f"{threshold:.0%}"
+            value=f"{threshold:.0%}",
         )
 
 
-    # Churn prediction message
+    # --------------------------------------------------
+    # Churn Prediction Message
+    # --------------------------------------------------
 
     if churn_prediction == "Yes":
 
@@ -327,7 +362,196 @@ if st.button(
         )
 
 
-    # Probability progress bar
+    # --------------------------------------------------
+    # SHAP Explainability
+    # --------------------------------------------------
+
+    with st.expander(
+        "🔍 Why did the model make this prediction?"
+    ):
+
+        try:
+
+            # Get pipeline components
+            preprocessor = model.named_steps[
+                "preprocessor"
+            ]
+
+            classifier = model.named_steps[
+                "classifier"
+            ]
+
+
+            # Transform customer data
+            transformed_customer = (
+                preprocessor.transform(customer)
+            )
+
+
+            # Load representative background data
+            background_data = pd.read_csv(
+                DATA_PATH
+            )
+
+            background_data = (
+                background_data[
+                    REQUIRED_FEATURES
+                ]
+                .sample(
+                    n=min(
+                        100,
+                        len(background_data),
+                    ),
+                    random_state=42,
+                )
+            )
+
+
+            # Transform background data
+            transformed_background = (
+                preprocessor.transform(
+                    background_data
+                )
+            )
+
+
+            # Create SHAP explainer
+            explainer = shap.LinearExplainer(
+                classifier,
+                transformed_background,
+            )
+
+
+            # Explain this customer's prediction
+            shap_values = explainer(
+                transformed_customer
+            )
+
+
+            # Get transformed feature names
+            transformed_feature_names = (
+                preprocessor.get_feature_names_out()
+            )
+
+
+            # Get individual SHAP contributions
+            customer_shap_values = (
+                shap_values.values[0]
+            )
+
+
+            # Prepare feature contribution dataframe
+            shap_df = pd.DataFrame({
+                "Feature": (
+                    transformed_feature_names
+                ),
+                "SHAP Value": (
+                    customer_shap_values
+                ),
+            })
+
+
+            shap_df["Absolute SHAP"] = (
+                shap_df["SHAP Value"].abs()
+            )
+
+
+            # Get top 10 contributing features
+            shap_df = (
+                shap_df.sort_values(
+                    "Absolute SHAP",
+                    ascending=False,
+                )
+                .head(10)
+            )
+
+
+            st.write(
+                "Features with the strongest influence "
+                "on this customer's prediction:"
+            )
+
+
+            # Display contribution table
+            st.dataframe(
+                shap_df[
+                    [
+                        "Feature",
+                        "SHAP Value",
+                    ]
+                ],
+                use_container_width=True,
+                hide_index=True,
+            )
+
+
+            # --------------------------------------------------
+            # SHAP Feature Contribution Chart
+            # --------------------------------------------------
+
+            chart_df = shap_df.sort_values(
+                "SHAP Value",
+                ascending=True,
+            )
+
+
+            fig, ax = plt.subplots(
+                figsize=(9, 5)
+            )
+
+
+            ax.barh(
+                chart_df["Feature"],
+                chart_df["SHAP Value"],
+            )
+
+
+            ax.axvline(
+                x=0,
+                linestyle="--",
+                linewidth=1,
+            )
+
+
+            ax.set_xlabel(
+                "SHAP Value "
+                "(positive = higher churn tendency)"
+            )
+
+
+            ax.set_title(
+                "Top Feature Contributions"
+            )
+
+
+            plt.tight_layout()
+
+
+            st.pyplot(fig)
+
+            plt.close(fig)
+
+
+            st.caption(
+                "SHAP values show how each feature "
+                "influences the model's output relative "
+                "to the background dataset. They explain "
+                "the model, not causality."
+            )
+
+
+        except Exception as e:
+
+            st.warning(
+                "SHAP explanation could not be generated."
+            )
+
+            st.exception(e)
+
+
+    # --------------------------------------------------
+    # Probability Progress Bar
+    # --------------------------------------------------
 
     st.progress(
         float(churn_probability)
@@ -341,6 +565,7 @@ if st.button(
     st.divider()
 
     st.header("Business Insights")
+
 
     # Illustrative business risk categories.
     # These are not statistically calibrated classes.
@@ -375,63 +600,10 @@ if st.button(
         )
 
         st.write(
-            "Suggested Action: Continue regular "
-            "customer engagement."
+            "Suggested Action: Maintain current "
+            "engagement and service quality."
         )
 
-
-    # --------------------------------------------------
-    # Customer Summary
-    # --------------------------------------------------
-
-    st.divider()
-
-    st.subheader("Customer Summary")
-
-    summary_col1, summary_col2, summary_col3 = st.columns(3)
-
-    with summary_col1:
-
-        st.write(
-            f"**Contract:** {contract}"
-        )
-
-        st.write(
-            f"**Tenure:** {tenure} months"
-        )
-
-    with summary_col2:
-
-        st.write(
-            f"**Internet Service:** {internet_service}"
-        )
-
-        st.write(
-            f"**Payment Method:** {payment_method}"
-        )
-
-    with summary_col3:
-
-        st.write(
-            f"**Monthly Charges:** ₹{monthly_charges:.2f}"
-        )
-
-        st.write(
-            f"**Total Charges:** ₹{total_charges:.2f}"
-        )
-
-
-# --------------------------------------------------
-# Footer
-# --------------------------------------------------
-
-st.divider()
-
-st.caption(
-    "Customer Churn Prediction Platform | "
-    "Machine Learning, Experiment Tracking "
-    "and Retention Analytics"
-)
 
 # --------------------------------------------------
 # Batch Churn Prediction
@@ -442,177 +614,183 @@ st.divider()
 st.header("Batch Churn Prediction")
 
 st.write(
-    "Upload a CSV file containing customer records "
-    "to predict churn for multiple customers at once."
+    "Upload a CSV file containing multiple customers "
+    "to generate churn predictions in bulk."
 )
-# --------------------------------------------------
-# Download Sample CSV Template
-# --------------------------------------------------
 
-st.subheader("CSV Template")
-
-sample_customer = {
-    "gender": "Female",
-    "SeniorCitizen": 0,
-    "Partner": "Yes",
-    "Dependents": "No",
-    "tenure": 12,
-    "PhoneService": "Yes",
-    "MultipleLines": "No",
-    "InternetService": "Fiber optic",
-    "OnlineSecurity": "No",
-    "OnlineBackup": "Yes",
-    "DeviceProtection": "No",
-    "TechSupport": "No",
-    "StreamingTV": "Yes",
-    "StreamingMovies": "Yes",
-    "Contract": "Month-to-month",
-    "PaperlessBilling": "Yes",
-    "PaymentMethod": "Electronic check",
-    "MonthlyCharges": 75.0,
-    "TotalCharges": 900.0
-}
-
-template_df = pd.DataFrame([sample_customer])
-
-template_csv = template_df.to_csv(
-    index=False
-).encode("utf-8")
-
-st.download_button(
-    label="Download CSV Template",
-    data=template_csv,
-    file_name="customer_churn_template.csv",
-    mime="text/csv"
-)
 
 uploaded_file = st.file_uploader(
     "Upload Customer CSV",
     type=["csv"],
-    key="batch_upload"
 )
+
 
 if uploaded_file is not None:
 
-    try:
-        batch_data = pd.read_csv(uploaded_file)
+    batch_data = pd.read_csv(
+        uploaded_file
+    )
 
-        # Check required columns
-        missing_columns = [
-            col for col in REQUIRED_FEATURES
-            if col not in batch_data.columns
-        ]
 
-        if missing_columns:
-            st.error(
-                f"Missing required columns: {missing_columns}"
-            )
-            st.stop()
+    # --------------------------------------------------
+    # Validate Required Features
+    # --------------------------------------------------
 
-        # Keep only model input features
-        batch_data = batch_data[REQUIRED_FEATURES]
+    missing_features = [
+        feature
+        for feature in REQUIRED_FEATURES
+        if feature not in batch_data.columns
+    ]
 
-        # Check for missing values
-        if batch_data.isnull().any().any():
-            st.error(
-                "The uploaded file contains missing values. "
-                "Please correct them before running predictions."
-            )
-            st.stop()
 
-        # Check numeric columns
-        numeric_columns = [
-            "SeniorCitizen",
-            "tenure",
-            "MonthlyCharges",
-            "TotalCharges"
-        ]
-
-        for col in numeric_columns:
-            batch_data[col] = pd.to_numeric(
-                batch_data[col],
-                errors="coerce"
-            )
-
-        if batch_data[numeric_columns].isnull().any().any():
-            st.error(
-                "Some numeric columns contain invalid values."
-            )
-            st.stop()
-
-        st.success("Uploaded file passed basic validation.")
-
-        st.subheader("Uploaded Data Preview")
-
-        st.dataframe(
-            batch_data.head(),
-            use_container_width=True
-        )
-
-        if st.button(
-            "Run Batch Prediction",
-            key="batch_predict_button"
-        ):
-
-            batch_results = predict_batch(
-                batch_data,
-                threshold=threshold
-            )
-
-            st.subheader("Batch Prediction Results")
-
-            st.dataframe(
-                batch_results,
-                use_container_width=True
-            )
-
-            # Summary metrics
-            total_customers = len(batch_results)
-
-            predicted_churners = (
-                batch_results["Churn Prediction"] == "Yes"
-            ).sum()
-
-            churn_rate = (
-                predicted_churners / total_customers
-                if total_customers > 0
-                else 0
-            )
-
-            metric_col1, metric_col2, metric_col3 = st.columns(3)
-
-            with metric_col1:
-                st.metric(
-                    "Total Customers",
-                    total_customers
-                )
-
-            with metric_col2:
-                st.metric(
-                    "Predicted Churners",
-                    predicted_churners
-                )
-
-            with metric_col3:
-                st.metric(
-                    "Predicted Churn Rate",
-                    f"{churn_rate:.1%}"
-                )
-
-            # Download results
-            csv_results = batch_results.to_csv(
-                index=False
-            ).encode("utf-8")
-
-            st.download_button(
-                label="Download Prediction Results",
-                data=csv_results,
-                file_name="churn_predictions.csv",
-                mime="text/csv"
-            )
-
-    except Exception as e:
+    if missing_features:
 
         st.error(
-            f"Unable to process the uploaded file: {e}"
+            "The uploaded file is missing required "
+            f"features: {missing_features}"
         )
+
+    else:
+
+        st.write(
+            f"Uploaded {len(batch_data)} customers."
+        )
+
+
+        # --------------------------------------------------
+        # Batch Prediction Threshold
+        # --------------------------------------------------
+
+        batch_threshold = st.slider(
+            "Batch Prediction Threshold",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.4,
+            step=0.05,
+        )
+
+
+        # --------------------------------------------------
+        # Generate Predictions
+        # --------------------------------------------------
+
+        if st.button(
+            "Generate Batch Predictions"
+        ):
+
+            try:
+
+                batch_results = predict_batch(
+                    batch_data[
+                        REQUIRED_FEATURES
+                    ],
+                    threshold=batch_threshold,
+                )
+
+
+                # --------------------------------------------------
+                # Display Results
+                # --------------------------------------------------
+
+                st.subheader(
+                    "Batch Prediction Results"
+                )
+
+
+                st.dataframe(
+                    batch_results,
+                    use_container_width=True,
+                )
+
+
+                # --------------------------------------------------
+                # Summary Metrics
+                # --------------------------------------------------
+
+                total_customers = (
+                    len(batch_results)
+                )
+
+
+                predicted_churners = (
+                    batch_results[
+                        "Churn Prediction"
+                    ] == "Yes"
+                ).sum()
+
+
+                churn_rate = (
+                    predicted_churners
+                    / total_customers
+                    if total_customers > 0
+                    else 0
+                )
+
+
+                metric_col1, metric_col2, metric_col3 = (
+                    st.columns(3)
+                )
+
+
+                with metric_col1:
+
+                    st.metric(
+                        "Total Customers",
+                        total_customers,
+                    )
+
+
+                with metric_col2:
+
+                    st.metric(
+                        "Predicted Churners",
+                        int(predicted_churners),
+                    )
+
+
+                with metric_col3:
+
+                    st.metric(
+                        "Predicted Churn Rate",
+                        f"{churn_rate:.1%}",
+                    )
+
+
+                # --------------------------------------------------
+                # Download Predictions
+                # --------------------------------------------------
+
+                csv = batch_results.to_csv(
+                    index=False
+                ).encode("utf-8")
+
+
+                st.download_button(
+                    label="Download Predictions CSV",
+                    data=csv,
+                    file_name=(
+                        "customer_churn_predictions.csv"
+                    ),
+                    mime="text/csv",
+                )
+
+
+            except Exception as e:
+
+                st.error(
+                    "Batch prediction failed."
+                )
+
+                st.exception(e)
+
+
+# --------------------------------------------------
+# Footer
+# --------------------------------------------------
+
+st.divider()
+
+st.caption(
+    "Customer Churn Prediction Platform | "
+    "Machine Learning, Analytics, and Explainability"
+)
