@@ -129,6 +129,9 @@ Python, pandas, NumPy, scikit-learn, SciPy, Matplotlib, Seaborn, MLflow, SHAP, F
 - The model does not estimate the causal effect of retention interventions.
 - Re-run evaluation and tests when changing the data, preprocessing, model, or deployment artifact.
 
-## Author
 
-Sai Datta Putta · [LinkedIn](https://www.linkedin.com/in/sai-datta-putta/)
+---
+
+**Sai Datta Putta**
+
+[LinkedIn](https://www.linkedin.com/in/sai-datta-putta/)
